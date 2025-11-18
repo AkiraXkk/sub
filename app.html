@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.....meuamor....</title>
+    <!-- Incluindo Tailwind CSS para agilizar o design e garantir responsividade -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Cores Personalizadas */
+        :root {
+            --primary-purple: #5D3FD3; /* Roxo Escuro */
+            --secondary-purple: #8A2BE2; /* Roxo Elétrico (Blue Violet) */
+            --cta-green: #32CD32; /* Verde Vibrante (Lime Green) */
+            --background-light: #F8F8F8;
+            --text-dark: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .header-bg {
+            background-color: var(--primary-purple);
+        }
+
+        .btn-cta {
+            background-color: var(--cta-green);
+            color: white;
+            font-weight: 700;
+            transition: background-color 0.2s;
+        }
+
+        .btn-cta:hover {
+            background-color: #2AAA2A; /* Um tom de verde um pouco mais escuro ao passar o mouse */
+        }
+
+        .store-card, .product-card {
+            background-color: white;
+            transition: transform 0.2s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .store-card:hover, .product-card:hover {
+            box-shadow: 0 4px 12px rgba(93, 63, 211, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Estrutura de Mídia para Edição Fácil */
+        .media-container {
+            width: 100%;
+            height: 150px; /* Altura fixa para todos os produtos/lojas */
+            overflow: hidden;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        .media-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Garante que a imagem cubra o container sem distorcer, cortando o excesso */
+        }
+
+        /* Classes Específicas do Carrinho */
+        #cart-sidebar {
+            background-color: #ffffff;
+            border-left: 1px solid #e5e7eb;
+            transition: right 0.3s ease-in-out;
+        }
+        
+        /* Oculta o modal (checkout) por padrão */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="selection:bg-[var(--secondary-purple)] selection:text-white">
+
+    <!-- Navbar -->
+    <header class="header-bg shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="text-2xl font-black text-white cursor-pointer">
+                FOOD-APP <span class="text-yellow-300">DEMO</span>
+            </div>
+            <button id="cart-toggle" class="relative p-2 rounded-full bg-white hover:bg-gray-100 transition shadow-md" aria-label="Abrir Carrinho">
+                <svg class="w-6 h-6 text-[var(--primary-purple)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full opacity-0">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Banners/Destaques -->
+        <section class="mb-10 p-6 rounded-xl shadow-lg header-bg text-white">
+            <h2 class="text-3xl font-bold mb-2">Seja Bem-Vindo!</h2>
+            <p class="text-lg">Os melhores pedidos da cidade, entregues rapidinho na sua casa.</p>
+        </section>
+
+        <!-- Listagem de Lojas -->
+        <section id="stores-list" class="mb-12">
+            <h3 class="text-2xl font-bold mb-6 text-[var(--text-dark)]">Lojas em Destaque</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Cards de Lojas serão injetados aqui pelo JS -->
+            </div>
+        </section>
+
+        <!-- Listagem de Produtos (Invisível até que uma loja seja selecionada) -->
+        <section id="products-section" class="mb-12 hidden">
+            <button onclick="showStores()" class="text-[var(--primary-purple)] font-semibold mb-4 flex items-center hover:underline">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Voltar para Lojas
+            </button>
+            <h3 id="current-store-name" class="text-3xl font-bold mb-6 text-[var(--primary-purple)]">Produtos da Loja X</h3>
+            <div id="products-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Cards de Produtos serão injetados aqui pelo JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Carrinho Lateral (Sidebar) -->
+    <div id="cart-sidebar" class="fixed top-0 right-[-400px] w-full max-w-sm h-full shadow-2xl p-6 flex flex-col z-50">
+        <div class="flex justify-between items-center pb-4 border-b">
+            <h4 class="text-2xl font-bold text-[var(--primary-purple)]">Seu Carrinho</h4>
+            <button id="close-cart" class="text-gray-500 hover:text-gray-700 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div id="cart-items-list" class="flex-grow overflow-y-auto py-4 space-y-4">
+            <!-- Itens do carrinho serão injetados aqui -->
+            <p id="empty-cart-message" class="text-center text-gray-500 mt-10">O carrinho está vazio!</p>
+        </div>
+
+        <div id="cart-summary" class="pt-4 border-t space-y-2">
+            <div class="flex justify-between font-semibold text-lg">
+                <span>Subtotal:</span>
+                <span id="cart-subtotal">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between font-semibold text-lg">
+                <span>Taxa de Entrega:</span>
+                <span id="cart-delivery">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between font-extrabold text-xl text-[var(--primary-purple)] pt-2 border-t">
+                <span>TOTAL:</span>
+                <span id="cart-total">R$ 0,00</span>
+            </div>
+            <button id="checkout-btn" class="w-full btn-cta py-3 rounded-xl mt-4 disabled:bg-gray-400" disabled>
+                Finalizar Pedido
+            </button>
+        </div>
+    </div>
+    
+    <!-- Overlay do Carrinho (para fechar ao clicar fora) -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
+
+    <!-- Modal de Checkout (Simulação) -->
+    <div id="checkout-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl p-8 w-full max-w-md shadow-2xl">
+            <h4 class="text-3xl font-bold mb-4 text-[var(--cta-green)]">Pedido Enviado! 🎉</h4>
+            <p class="mb-6 text-gray-700">Obrigado por usar nossa plataforma de demonstração. Seu pedido foi simulado com sucesso.</p>
+            
+            <div id="checkout-details" class="bg-gray-50 p-4 rounded-lg text-sm mb-6">
+                <!-- Detalhes do pedido final serão injetados aqui -->
+            </div>
+
+            <button id="close-modal-btn" class="w-full btn-cta py-3 rounded-xl">
+                Fechar e Continuar Comprando
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Estrutura de Dados JSON ---
+        const APP_DATA = {
+            stores: [
+                { id: 1, name: "Sabor Mineiro", minDelivery: 10.00, deliveryFee: 7.00, img: "https://placehold.co/400x150/5D3FD3/ffffff?text=Loja+Mineira", slogan: "Comida caseira quentinha!" },
+                { id: 2, name: "Hamburgueria do Chef", minDelivery: 15.00, deliveryFee: 10.00, img: "https://placehold.co/400x150/8A2BE2/ffffff?text=Loja+Hamburguer", slogan: "O melhor smash da cidade." },
+                { id: 3, name: "Pizzaria Napolitana", minDelivery: 20.00, deliveryFee: 5.00, img: "https://placehold.co/400x150/32CD32/ffffff?text=Loja+Pizza", slogan: "Direto da Itália para você." }
+            ],
+            products: [
+                { id: 101, storeId: 1, name: "Feijoada Completa", price: 35.00, description: "Arroz, couve, torresmo e laranja.", img: "https://placehold.co/300x200/5D3FD3/ffffff?text=Feijoada" },
+                { id: 102, storeId: 1, name: "Frango com Quiabo", price: 28.00, description: "Receita tradicional mineira.", img: "https://placehold.co/300x200/5D3FD3/ffffff?text=Frango" },
+                { id: 103, storeId: 1, name: "Bife Acebolado", price: 32.00, description: "Acompanha batata frita e salada.", img: "https://placehold.co/300x200/5D3FD3/ffffff?text=Bife" },
+                
+                { id: 201, storeId: 2, name: "Smash Burger Duplo", price: 25.00, description: "Dois hambúrgueres, queijo cheddar e bacon.", img: "https://placehold.co/300x200/8A2BE2/ffffff?text=Smash+Duplo" },
+                { id: 202, storeId: 2, name: "Batata Frita Rustica", price: 12.00, description: "Porção grande com alecrim.", img: "https://placehold.co/300x200/8A2BE2/ffffff?text=Batata+Rustica" },
+                { id: 203, storeId: 2, name: "Milkshake de Chocolate", price: 18.00, description: "Cremoso e gelado, 500ml.", img: "https://placehold.co/300x200/8A2BE2/ffffff?text=Milkshake" },
+                { id: 204, storeId: 2, name: "Hot Dog Gourmet", price: 16.00, description: "Salsicha artesanal e maionese defumada.", img: "https://placehold.co/300x200/8A2BE2/ffffff?text=HotDog" },
+
+                { id: 301, storeId: 3, name: "Pizza Calabresa", price: 55.00, description: "Clássica calabresa com cebola.", img: "https://placehold.co/300x200/32CD32/ffffff?text=Pizza+Calabresa" },
+                { id: 302, storeId: 3, name: "Pizza Margherita", price: 50.00, description: "Tomate cereja, manjericão e mussarela de búfala.", img: "https://placehold.co/300x200/32CD32/ffffff?text=Pizza+Margherita" },
+                { id: 303, storeId: 3, name: "Refrigerante 2L", price: 10.00, description: "Coca-Cola ou Guaraná.", img: "https://placehold.co/300x200/32CD32/ffffff?text=Refri" },
+            ]
+        };
+
+        // --- Estado Global (Carrinho) ---
+        let currentStoreId = null;
+        let cart = {
+            items: [],      // [{ productId: 101, quantity: 2, price: 35.00, name: "..." }]
+            storeId: null,  // ID da loja associada aos itens no carrinho
+            store: null     // Objeto da loja
+        };
+
+        // --- Utilitários de Formatação ---
+        const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+        // --- Funções de Renderização da Loja e Produtos ---
+
+        /**
+         * Renderiza a lista de lojas na tela inicial.
+         */
+        function renderStores() {
+            const listElement = document.querySelector('#stores-list > div');
+            listElement.innerHTML = '';
+            
+            APP_DATA.stores.forEach(store => {
+                const storeHtml = `
+                    <div class="store-card rounded-xl shadow-md overflow-hidden cursor-pointer" onclick="showProducts(${store.id})">
+                        <div class="media-container">
+                            <img src="${store.img}" alt="Imagem da Loja ${store.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x150/5D3FD3/ffffff?text=Loja';" loading="lazy">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-xl font-bold text-[var(--text-dark)] mb-1">${store.name}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${store.slogan}</p>
+                            <div class="text-xs text-gray-500">
+                                <span class="font-semibold">Entrega:</span> ${formatCurrency(store.deliveryFee)} | 
+                                <span class="font-semibold">Mínimo:</span> ${formatCurrency(store.minDelivery)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listElement.innerHTML += storeHtml;
+            });
+
+            document.getElementById('stores-list').classList.remove('hidden');
+            document.getElementById('products-section').classList.add('hidden');
+        }
+
+        /**
+         * Renderiza os produtos de uma loja selecionada.
+         * @param {number} storeId - O ID da loja.
+         */
+        function renderProducts(storeId) {
+            const listElement = document.getElementById('products-list');
+            listElement.innerHTML = '';
+            
+            const store = APP_DATA.stores.find(s => s.id === storeId);
+            if (!store) return;
+            
+            document.getElementById('current-store-name').textContent = `Cardápio: ${store.name}`;
+            const products = APP_DATA.products.filter(p => p.storeId === storeId);
+
+            products.forEach(product => {
+                const cartItem = cart.items.find(item => item.productId === product.id);
+                const quantity = cartItem ? cartItem.quantity : 0;
+                
+                const productHtml = `
+                    <div class="product-card rounded-xl shadow-md overflow-hidden flex flex-col">
+                        <div class="media-container">
+                            <img src="${product.img}" alt="Imagem do produto ${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/300x200/8A2BE2/ffffff?text=Produto';" loading="lazy">
+                        </div>
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h4 class="text-lg font-bold text-[var(--text-dark)]">${product.name}</h4>
+                            <p class="text-sm text-gray-600 flex-grow mb-2">${product.description}</p>
+                            <p class="text-xl font-extrabold text-[var(--secondary-purple)] mb-4">${formatCurrency(product.price)}</p>
+                            
+                            <!-- Botão de Ação (CTA) -->
+                            <button class="w-full btn-cta py-2 rounded-lg" 
+                                    onclick="addToCart(${product.id}, '${product.name}', ${product.price}, ${store.id})">
+                                Adicionar ao Carrinho
+                                ${quantity > 0 ? ` (${quantity})` : ''}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                listElement.innerHTML += productHtml;
+            });
+        }
+
+        /**
+         * Alterna a visualização entre lista de lojas e lista de produtos.
+         * @param {number | null} storeId - O ID da loja a ser exibida.
+         */
+        function showProducts(storeId) {
+            currentStoreId = storeId;
+            document.getElementById('stores-list').classList.add('hidden');
+            document.getElementById('products-section').classList.remove('hidden');
+            renderProducts(storeId);
+            window.scrollTo(0, 0); // Volta para o topo da página
+        }
+
+        function showStores() {
+            renderStores();
+            currentStoreId = null;
+            window.scrollTo(0, 0);
+        }
+        
+        // --- Funções de Lógica do Carrinho ---
+
+        /**
+         * Adiciona um produto ao carrinho.
+         */
+        function addToCart(productId, name, price, storeId) {
+            // 1. Validar se o item pertence à loja atual no carrinho
+            if (cart.storeId && cart.storeId !== storeId) {
+                // Usar um modal personalizado em vez de `confirm()`
+                if (!window.confirm(`O carrinho já contém itens da Loja ${cart.store.name}. Deseja esvaziar o carrinho e adicionar este item da nova loja?`)) {
+                    return;
+                }
+                // Se confirmado, esvazia o carrinho
+                cart.items = [];
+                cart.storeId = null;
+                cart.store = null;
+            }
+
+            // 2. Definir a loja se o carrinho estava vazio
+            if (!cart.storeId) {
+                cart.storeId = storeId;
+                cart.store = APP_DATA.stores.find(s => s.id === storeId);
+            }
+
+            // 3. Adicionar/Atualizar o item
+            const existingItem = cart.items.find(item => item.productId === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.items.push({ productId, name, price, quantity: 1 });
+            }
+
+            // 4. Atualizar UI
+            updateCartUI();
+            
+            // 5. Se estiver na lista de produtos, re-renderizar para atualizar o contador
+            if (currentStoreId === storeId) {
+                 renderProducts(storeId);
+            }
+        }
+
+        /**
+         * Remove uma unidade de um produto do carrinho.
+         */
+        function removeFromCart(productId) {
+            const existingItemIndex = cart.items.findIndex(item => item.productId === productId);
+            
+            if (existingItemIndex > -1) {
+                const item = cart.items[existingItemIndex];
+                item.quantity -= 1;
+                
+                // Remover o item se a quantidade for 0 ou menos
+                if (item.quantity <= 0) {
+                    cart.items.splice(existingItemIndex, 1);
+                }
+                
+                // Limpar a loja se o carrinho estiver vazio
+                if (cart.items.length === 0) {
+                    cart.storeId = null;
+                    cart.store = null;
+                    // Se o carrinho estiver vazio, e a lista de produtos estiver visível, 
+                    // re-renderizar para remover o contador.
+                    if (currentStoreId) {
+                        renderProducts(currentStoreId);
+                    }
+                }
+            }
+
+            // Atualizar UI
+            updateCartUI();
+            
+            // Se estiver na lista de produtos, re-renderizar para atualizar o contador
+            if (currentStoreId === cart.storeId) {
+                 renderProducts(currentStoreId);
+            } else if (cart.items.length === 0 && currentStoreId) {
+                 // Esta condição é importante se o último item for removido e o usuário estiver na página de produtos
+                 renderProducts(currentStoreId);
+            }
+        }
+        
+        /**
+         * Calcula os totais do carrinho e atualiza a sidebar.
+         */
+        function updateCartUI() {
+            const listElement = document.getElementById('cart-items-list');
+            const subtotalElement = document.getElementById('cart-subtotal');
+            const deliveryElement = document.getElementById('cart-delivery');
+            const totalElement = document.getElementById('cart-total');
+            const countElement = document.getElementById('cart-count');
+            const emptyMessage = document.getElementById('empty-cart-message');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            let subtotal = 0;
+            let totalItems = 0;
+            
+            // VERIFICAÇÃO DE SEGURANÇA CONTRA ERRO DE NULL
+            if (!checkoutBtn || !listElement) {
+                console.error("Erro: Um dos elementos do carrinho não foi encontrado no DOM.");
+                return;
+            }
+            
+            listElement.innerHTML = '';
+
+            // 1. Calcular Subtotal e Total de Itens
+            if (cart.items.length > 0) {
+                emptyMessage.classList.add('hidden');
+                cart.items.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    totalItems += item.quantity;
+
+                    // Renderizar item do carrinho
+                    const itemHtml = `
+                        <div class="flex items-center justify-between p-2 border-b last:border-b-0">
+                            <div class="flex-grow">
+                                <p class="font-semibold text-sm">${item.name}</p>
+                                <p class="text-xs text-gray-500">${formatCurrency(item.price)} x ${item.quantity}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="removeFromCart(${item.productId})" class="text-red-500 hover:text-red-700 font-bold p-1 rounded-full bg-gray-100 transition" aria-label="Remover um item">-</button>
+                                <span class="font-bold text-sm w-4 text-center">${item.quantity}</span>
+                                <button onclick="addToCart(${item.productId}, '${item.name}', ${item.price}, ${cart.storeId})" class="text-[var(--cta-green)] hover:text-green-700 font-bold p-1 rounded-full bg-gray-100 transition" aria-label="Adicionar um item">+</button>
+                            </div>
+                        </div>
+                    `;
+                    listElement.innerHTML += itemHtml;
+                });
+            } else {
+                emptyMessage.classList.remove('hidden');
+            }
+
+            // 2. Calcular Total (com Entrega)
+            // CORREÇÃO: Usar encadeamento opcional para evitar erro se cart.store for null
+            const deliveryFee = cart.store ? cart.store.deliveryFee : 0;
+            const total = subtotal + deliveryFee;
+
+            // 3. Atualizar Resumo
+            subtotalElement.textContent = formatCurrency(subtotal);
+            deliveryElement.textContent = formatCurrency(deliveryFee);
+            totalElement.textContent = formatCurrency(total);
+            
+            // 4. Atualizar Contador da Navbar
+            countElement.textContent = totalItems;
+            countElement.classList.toggle('opacity-0', totalItems === 0);
+
+            // 5. Habilitar/Desabilitar Checkout
+            // CORREÇÃO: Verificar se cart.store existe antes de aceder a minDelivery
+            if (cart.items.length > 0 && cart.store && subtotal >= cart.store.minDelivery) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.textContent = `Finalizar Pedido (${formatCurrency(total)})`;
+            } else {
+                checkoutBtn.disabled = true;
+                // CORREÇÃO: Verificar se cart.store existe antes de aceder a minDelivery
+                if (cart.items.length > 0 && cart.store) {
+                    checkoutBtn.textContent = `Mínimo: ${formatCurrency(cart.store.minDelivery)} (Faltam ${formatCurrency(cart.store.minDelivery - subtotal)})`;
+                } else {
+                    checkoutBtn.textContent = 'Finalizar Pedido';
+                }
+            }
+        }
+        
+        // --- Funções de Interação da UI ---
+
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const cartToggleBtn = document.getElementById('cart-toggle');
+        const closeCartBtn = document.getElementById('close-cart');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        function openCart() {
+            cartSidebar.style.right = '0';
+            cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            cartOverlay.classList.add('opacity-100', 'pointer-events-auto');
+            document.body.style.overflow = 'hidden'; // Evita scroll de fundo
+        }
+
+        function closeCart() {
+            cartSidebar.style.right = '-400px';
+            cartOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        }
+        
+        function openCheckoutModal() {
+            // Prepara os detalhes do checkout
+            // CORREÇÃO: Verificar se cart.store existe antes de prosseguir
+            if (!cart.store) {
+                console.error("Erro: Não é possível finalizar o pedido. Loja não definida.");
+                return;
+            }
+
+            const subtotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = cart.store.deliveryFee;
+            const total = subtotal + deliveryFee;
+
+            const detailsHtml = `
+                <p class="font-bold text-[var(--primary-purple)] mb-2">Resumo do Pedido na Loja ${cart.store.name}:</p>
+                <ul class="list-disc ml-4 text-gray-600 space-y-1 mb-4">
+                    ${cart.items.map(item => `<li>${item.quantity}x ${item.name} (${formatCurrency(item.price * item.quantity)})</li>`).join('')}
+                </ul>
+                <p class="border-t pt-2 mt-2 font-semibold">Subtotal: ${formatCurrency(subtotal)}</p>
+                <p class="font-semibold">Entrega: ${formatCurrency(deliveryFee)}</p>
+                <p class="font-extrabold text-lg text-[var(--cta-green)]">Total Pago: ${formatCurrency(total)}</p>
+            `;
+            document.getElementById('checkout-details').innerHTML = detailsHtml;
+
+            // Exibe o modal
+            checkoutModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            closeCart(); // Fecha a sidebar do carrinho
+            
+            // Limpa o carrinho após a simulação de pedido
+            cart.items = [];
+            cart.storeId = null;
+            cart.store = null;
+            updateCartUI(); // Atualiza a UI para refletir o carrinho vazio
+        }
+
+        function closeCheckoutModal() {
+            checkoutModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        // --- Event Listeners ---
+        cartToggleBtn.addEventListener('click', openCart);
+        closeCartBtn.addEventListener('click', closeCart);
+        cartOverlay.addEventListener('click', closeCart);
+        checkoutBtn.addEventListener('click', openCheckoutModal);
+        closeModalBtn.addEventListener('click', closeCheckoutModal);
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStores();
+            updateCartUI(); // Inicializa a UI do carrinho (mostra R$ 0,00 e 0 itens)
+        });
+        
+    </script>
+
+</body>
+</html>
